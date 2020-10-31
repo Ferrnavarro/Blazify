@@ -1,0 +1,40 @@
+﻿
+
+<div class="time-range-selector">
+
+    @foreach (TimeRange timeRange in timeRanges)
+    {
+        <button @onclick="@(e => ChangeSelected(timeRange.Id))" class="@timeRange.CssClass">@timeRange.Label</button>
+    }
+
+</div>
+
+@code {
+
+
+    void ChangeSelected(int id)
+    {
+        foreach (var item in timeRanges)
+        {
+            item.Selected = id == item.Id;
+        }
+    }
+
+
+    class TimeRange
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public string Label { get; set; }
+        public bool Selected { get; set; }
+        public string CssClass { get { return Selected ? "time-option time--active" : "time-option";  } private set { } }
+    }
+
+    List<TimeRange> timeRanges = new List<TimeRange>()
+    {
+        new TimeRange() {Id = 1, Name = "long_term", Label ="All time", Selected = true },
+        new TimeRange() {Id = 2, Name = "medium_term", Label ="Last 6 months", Selected = false },
+        new TimeRange() {Id = 3, Name = "short_term", Label ="Last month", Selected = false }
+    };
+
+}
