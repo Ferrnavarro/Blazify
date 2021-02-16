@@ -1,8 +1,12 @@
 ﻿@page "/"
+@inject NavigationManager NavManager
 
-<TopHistory Title="@title"/>
 
 @code {
-    string title = "Top Artists";
+
+    protected override void OnInitialized()
+    {
+        NavManager.NavigateTo("/top-artists");
+    }
 
 }

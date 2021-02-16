@@ -1,7 +1,7 @@
 ﻿
 
 <div class="list-page">
-    <div style="background-image: url('https://localhost:44374/img/top-tracks.jpg')" class="list-page__image" />
+    <div style="background-image: url('@ImageUrl')" class="list-page__image" />
     <button  class="share-link ion-android-share-alt" />
     <h1 class="list-page__title">@Title</h1>
     <div class="list-page__content">
@@ -15,5 +15,8 @@
 
     [Parameter]
     public string Title { get; set; }
+
+    [Parameter]
+    public string ImageUrl { get; set; }
 
 }
