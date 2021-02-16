@@ -1,13 +1,35 @@
 ﻿@page "/top-tracks"
 
+@inject State.AppState AppState
+
 <div class="top-history">
     <ListPage Title="Top Tracks" ImageUrl="https://localhost:44374/img/top-tracks.jpg">
         <div>
-            <TimeRangeSelector />
-            <TopHistoryTrack />
+            <TimeRangeSelector OnChange="OnChangeTimeRange"></TimeRangeSelector>
+
+            @if (AppState.TopTracks.Any())
+            {
+                @foreach (var track in AppState.TopTracks)
+                {
+                    <TopHistoryTrack Track="@track" />
+                }
+            }
+
         </div>
     </ListPage>
 </div>
 
 @code {
+    protected override async Task OnInitializedAsync()
+    {
+        await AppState.SetTopTracks(SpotifyAPI.Web.PersonalizationTopRequest.TimeRange.LongTerm);
+    }
+
+
+    public async Task OnChangeTimeRange(SpotifyAPI.Web.PersonalizationTopRequest.TimeRange timeRange)
+    {        
+        await AppState.SetTopTracks(timeRange);
+    }
+
+
 }

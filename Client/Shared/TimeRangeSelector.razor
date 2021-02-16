@@ -1,40 +1,36 @@
-﻿
-
+﻿@inject Blazify.Client.State.AppState AppState
+@using Blazify.Client.Models
 <div class="time-range-selector">
 
     @foreach (TimeRange timeRange in timeRanges)
     {
-        <button @onclick="@(e => ChangeSelected(timeRange.Id))" class="@timeRange.CssClass">@timeRange.Label</button>
+        <button @onclick="@(e => ChangeSelected(timeRange))" class="@timeRange.CssClass">@timeRange.Label</button>
     }
 
 </div>
 
 @code {
 
+    [Parameter]
+    public EventCallback<SpotifyAPI.Web.PersonalizationTopRequest.TimeRange> OnChange { get; set; }
 
-    void ChangeSelected(int id)
+    async Task ChangeSelected(TimeRange timeRange)
     {
         foreach (var item in timeRanges)
         {
-            item.Selected = id == item.Id;
+            item.Selected = timeRange.Id == item.Id;
         }
+
+        await OnChange.InvokeAsync(timeRange.TimeRangeEnum);
     }
 
-
-    class TimeRange
-    {
-        public int Id { get; set; }
-        public string Name { get; set; }
-        public string Label { get; set; }
-        public bool Selected { get; set; }
-        public string CssClass { get { return Selected ? "time-option time--active" : "time-option";  } private set { } }
-    }
 
     List<TimeRange> timeRanges = new List<TimeRange>()
     {
-        new TimeRange() {Id = 1, Name = "long_term", Label ="All time", Selected = true },
-        new TimeRange() {Id = 2, Name = "medium_term", Label ="Last 6 months", Selected = false },
-        new TimeRange() {Id = 3, Name = "short_term", Label ="Last month", Selected = false }
+        new TimeRange() {Id = 1, Name = "long_term", Label ="All time", Selected = true, TimeRangeEnum = SpotifyAPI.Web.PersonalizationTopRequest.TimeRange.LongTerm },
+        new TimeRange() {Id = 2, Name = "medium_term", Label ="Last 6 months", Selected = false, TimeRangeEnum = SpotifyAPI.Web.PersonalizationTopRequest.TimeRange.MediumTerm },
+        new TimeRange() {Id = 3, Name = "short_term", Label ="Last month", Selected = false, TimeRangeEnum = SpotifyAPI.Web.PersonalizationTopRequest.TimeRange.ShortTerm }
     };
 
 }
+

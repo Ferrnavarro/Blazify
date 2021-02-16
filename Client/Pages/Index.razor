@@ -1,12 +1,61 @@
 ﻿@page "/"
 @inject NavigationManager NavManager
+@inject State.AppState AppState 
 
+@using SpotifyAPI.Web
 
-@code {
+@code {    
 
     protected override void OnInitialized()
     {
-        NavManager.NavigateTo("/top-artists");
+        Dictionary<string, string> fragmentParams = GetFragmentParams();
+
+        bool isAuthed = fragmentParams.ContainsKey("access_token");
+
+        if (!isAuthed)
+        {
+            NavigateToSpotifyLoginPage();
+            return;
+        }
+
+        InitiliazeApp(fragmentParams["access_token"]);
+       
+    }
+
+
+    private Dictionary<string, string> GetFragmentParams()
+    {
+        var uri = new Uri(NavManager.Uri);
+        var maxLen = Math.Min(1, uri.Fragment.Length);
+
+        return uri.Fragment.Substring(maxLen)?
+       .Split("&", StringSplitOptions.RemoveEmptyEntries)?
+       .Select(param => param.Split("=", StringSplitOptions.RemoveEmptyEntries))?
+       .ToDictionary(param => param[0], param => param[1]) ?? new Dictionary<string, string>();
+    }
+
+    private LoginRequest GetSpotifyLoginRequest()
+    {
+        var clientId = "";
+        var baseUri = NavManager.ToAbsoluteUri(NavManager.BaseUri);
+
+        return new LoginRequest(baseUri, clientId, LoginRequest.ResponseType.Token)
+        {
+            Scope = new[] { Scopes.PlaylistReadPrivate, Scopes.PlaylistReadCollaborative, Scopes.UserTopRead },
+        };
+    }
+
+    private void NavigateToSpotifyLoginPage()
+    {
+        var loginRequest = GetSpotifyLoginRequest();
+        string authUri = loginRequest.ToUri().ToString();
+        NavManager.NavigateTo(authUri);
+    }
+
+    private void InitiliazeApp(string accessToken)
+    {
+        AppState.SpotifyClient = new SpotifyClient(accessToken); ;
+        NavManager.NavigateTo("/top-tracks");
     }
 
 }

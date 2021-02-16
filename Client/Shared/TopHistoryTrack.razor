@@ -1,15 +1,18 @@
-﻿<a class="artist-history__item" href="">
-    <span class="order-number">1</span>
+﻿@using Blazify.Client.Dtos
+
+<a class="track-history__item" href="">
+    <span class="order-number">@Track.Position</span>
     <span class="track__info">
-        <ListItemCoverImage />
+        <ListItemCoverImage ImageUrl="@Track.ImageUrl" />
         <span class="track__summary">
-            <span className="track__artist">Track artist will be here</span>
-            <span className="track__separator">●</span>
-            <span className="track__track-name">Track name will be here</span>
+            <span class="track__artist">@Track.Artist</span>
+            <span class="track__separator">●</span>
+            <span class="track__track-name">@Track.Name</span>
         </span>
     </span>
 </a>
 
 @code {
-
+    [Parameter]
+    public TrackDto Track { get; set; }
 }
