@@ -22,13 +22,15 @@
 @code {
     protected override async Task OnInitializedAsync()
     {
-        await AppState.SetTopTracks(SpotifyAPI.Web.PersonalizationTopRequest.TimeRange.LongTerm);
+        await AppState.InitiliazeTopTracks();
+
+       AppState.SetTopTracks(SpotifyAPI.Web.PersonalizationTopRequest.TimeRange.LongTerm);
     }
 
 
-    public async Task OnChangeTimeRange(SpotifyAPI.Web.PersonalizationTopRequest.TimeRange timeRange)
+    public void OnChangeTimeRange(SpotifyAPI.Web.PersonalizationTopRequest.TimeRange timeRange)
     {        
-        await AppState.SetTopTracks(timeRange);
+        AppState.SetTopTracks(timeRange);
     }
 
 

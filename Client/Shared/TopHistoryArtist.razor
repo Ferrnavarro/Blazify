@@ -1,16 +1,19 @@
-﻿<a class="artist-history__item" href="">
-    <span class="order-number">1</span>
+﻿@using Blazify.Client.Dtos
+
+<a class="artist-history__item" href="">
+    <span class="order-number">@Artist.Position</span>
     <span class="artist__info">
-        <ListItemCoverImage />
+        <ListItemCoverImage ImageUrl="@Artist.ImageUrl" />
         <span class="artist__summary">
-            <span class="artist__name">artistname will be here</span>
+            <span class="artist__name">@Artist.Name</span>
             <span class="artist__genres">
-                Genres will be here
+                @String.Join(",", Artist.Genres)
             </span>
         </span>
     </span>
 </a>
 
 @code {
-
+    [Parameter]
+    public ArtistDto Artist { get; set; }
 }
