@@ -113,7 +113,9 @@ namespace Blazify.Client.State
 
         private async Task InitializeRecentTracks()
         {
+            var recentTracksFromSpotify = await SpotifyClient.Player.GetRecentlyPlayed();
 
+            RecentTracks = recentTracksFromSpotify.Items.GetTracksDto();
         }
 
     }
