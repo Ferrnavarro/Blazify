@@ -1,7 +1,9 @@
 ﻿@page "/recently-played"
 
+@inject NavigationManager NavManager
+
 <div class="play-history">
-    <ListPage Title="Recently Played" ImageUrl="https://localhost:44374/img/recently.jpg">
+    <ListPage Title="Recently Played" ImageUrl="@ImageUrl">
         <div>
             <PlayHistoryItem />
         </div>
@@ -9,5 +11,5 @@
 </div>
 
 @code {
-
+    public string ImageUrl { get { return $"{NavManager.ToAbsoluteUri(NavManager.BaseUri)}/img/recently.jpg"; } }
 }

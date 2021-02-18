@@ -1,9 +1,9 @@
 ﻿@page "/top-tracks"
-
+@inject NavigationManager NavManager
 @inject State.AppState AppState
 
 <div class="top-history">
-    <ListPage Title="Top Tracks" ImageUrl="https://localhost:44374/img/top-tracks.jpg">
+    <ListPage Title="Top Tracks" ImageUrl="@ImageUrl">
         <div>
             <TimeRangeSelector OnChange="OnChangeTimeRange"></TimeRangeSelector>
 
@@ -20,16 +20,19 @@
 </div>
 
 @code {
+
+    public string ImageUrl { get { return $"{NavManager.ToAbsoluteUri(NavManager.BaseUri)}/img/top-tracks.jpg"; } }
+
     protected override async Task OnInitializedAsync()
     {
         await AppState.InitiliazeTopTracks();
 
-       AppState.SetTopTracks(SpotifyAPI.Web.PersonalizationTopRequest.TimeRange.LongTerm);
+        AppState.SetTopTracks(SpotifyAPI.Web.PersonalizationTopRequest.TimeRange.LongTerm);
     }
 
 
     public void OnChangeTimeRange(SpotifyAPI.Web.PersonalizationTopRequest.TimeRange timeRange)
-    {        
+    {
         AppState.SetTopTracks(timeRange);
     }
 
