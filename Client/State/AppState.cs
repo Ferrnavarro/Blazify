@@ -22,8 +22,9 @@ namespace Blazify.Client.State
 
         public List<TrackDto> TopTracks { get; private set; } = new List<TrackDto>();
         public List<ArtistDto> TopArtists { get; set; } = new List<ArtistDto>();
-
         public List<TrackDto> RecentTracks { get; private set; } = new List<TrackDto>();
+
+
 
         public void SetTopTracks(PersonalizationTopRequest.TimeRange timeRange)
         {
@@ -71,7 +72,6 @@ namespace Blazify.Client.State
             _shortTermTracks = _shortTermTracks != null && _shortTermTracks.Any() ? _shortTermTracks : await SetTracks(PersonalizationTopRequest.TimeRange.ShortTerm);
         }
 
-
         public async Task InitiliazeTopArtistss()
         {
             _longTermArtists = _longTermArtists != null && _longTermArtists.Any() ? _longTermArtists : await SetArtists(PersonalizationTopRequest.TimeRange.LongTerm);
@@ -79,8 +79,12 @@ namespace Blazify.Client.State
             _shortTermArtists = _shortTermArtists != null && _shortTermArtists.Any() ? _shortTermArtists : await SetArtists(PersonalizationTopRequest.TimeRange.ShortTerm);
         }
 
+        private async Task InitializeRecentTracks()
+        {
+            var recentTracksFromSpotify = await SpotifyClient.Player.GetRecentlyPlayed();
 
-
+            RecentTracks = recentTracksFromSpotify.Items.GetTracksDto();
+        }
 
         private async Task<List<TrackDto>> SetTracks(PersonalizationTopRequest.TimeRange timeRange)
         {
@@ -109,13 +113,22 @@ namespace Blazify.Client.State
             return topTracks.Items.GetArtistsDto();
 
         }
+       
 
-
-        private async Task InitializeRecentTracks()
+        private LoginRequest GetSpotifyLoginRequest(Uri baseUri)
         {
-            var recentTracksFromSpotify = await SpotifyClient.Player.GetRecentlyPlayed();
+            var clientId = "";
 
-            RecentTracks = recentTracksFromSpotify.Items.GetTracksDto();
+            return new LoginRequest(baseUri, clientId, LoginRequest.ResponseType.Token)
+            {
+                Scope = new[] { Scopes.PlaylistReadPrivate, Scopes.PlaylistReadCollaborative, Scopes.UserTopRead },
+            };
+        }
+
+        public string GetSpotifyLoginPageUrl(Uri baseUri)
+        {
+            var loginRequest = GetSpotifyLoginRequest(baseUri);
+            return loginRequest.ToUri().ToString();
         }
 
     }

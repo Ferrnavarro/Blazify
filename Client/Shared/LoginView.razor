@@ -1,0 +1,20 @@
+﻿<span>
+    <div class="login">
+        <span class="login__app-icon">
+            <img src="img/replayify-icon.png" alt="Replayify" />
+        </span>
+        <div class="login__content">
+            <h1 class="login__title">Replay your Spotify Hits</h1>
+            <a class="btn btn-primary btn-login" href="@LoginRequestUrl">
+                Sign in with Spotify
+            </a>
+        </div>
+        <span class="login__background" />
+    </div>
+</span>
+
+
+@code {
+    [Parameter]
+    public string LoginRequestUrl { get; set; }
+}

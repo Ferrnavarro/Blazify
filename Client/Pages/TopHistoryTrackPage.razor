@@ -25,6 +25,12 @@
 
     protected override async Task OnInitializedAsync()
     {
+        if (AppState.SpotifyClient == null)
+        {
+            NavManager.NavigateTo("/");
+            return;
+        }
+
         await AppState.InitiliazeTopTracks();
 
         AppState.SetTopTracks(SpotifyAPI.Web.PersonalizationTopRequest.TimeRange.LongTerm);

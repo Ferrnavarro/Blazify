@@ -1,0 +1,12 @@
+﻿@layout EmptyLayout
+@page "/login"
+
+@inject NavigationManager NavManager
+@inject State.AppState AppState
+
+<LoginView LoginRequestUrl="@LoginPageUrl"></LoginView>
+
+@code {
+
+    public string LoginPageUrl { get { return AppState.GetSpotifyLoginPageUrl(NavManager.ToAbsoluteUri(NavManager.BaseUri)); }  }
+}
