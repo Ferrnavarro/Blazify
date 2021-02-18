@@ -1,21 +1,26 @@
 ﻿@page "/top-artists"
-
+@inject NavigationManager NavManager
 @inject State.AppState AppState
 
 <div class="top-history">
-    <ListPage Title="Top Artists" ImageUrl="https://localhost:44374/img/top-artists.jpg">
+    <ListPage Title="Top Artists" ImageUrl="@ImageUrl">
         <div>
             <TimeRangeSelector OnChange="OnChangeTimeRange"></TimeRangeSelector>
             @foreach (var artist in AppState.TopArtists)
             {
                 <TopHistoryArtist Artist="@artist" />
             }
-            
+
         </div>
     </ListPage>
 </div>
 
 @code {
+
+    public string ImageUrl { get { return $"{NavManager.ToAbsoluteUri(NavManager.BaseUri)}/img/top-artists.jpg"; } }
+
+
+
 
     protected override async Task OnInitializedAsync()
     {
