@@ -2,19 +2,16 @@
 @page "/"
 @inject NavigationManager NavManager
 @inject HttpClient HttpClient
-@inject State.AppState AppState
 @inject Blazored.LocalStorage.ILocalStorageService LocalStorage
-
-@using SpotifyAPI.Web
 
 <LoginView></LoginView>
 
 
 @code {   
-    private bool _isAuthed = false;   
+    private bool _isAuthed = false;
 
     protected override async Task OnInitializedAsync()
-    {      
+    {
         Dictionary<string, string> fragmentParams = GetFragmentParams();
 
         bool fromSpotifyPage = fragmentParams.ContainsKey("access_token");
@@ -22,17 +19,9 @@
         if (fromSpotifyPage)
         {
             await LocalStorage.SetItemAsync("spotify_access_token", fragmentParams["access_token"]);
-            InitiliazeApp(fragmentParams["access_token"]);
-            return;
         }
 
-        var accessToken = await LocalStorage.GetItemAsync<string>("spotify_access_token");
-
-        if (!String.IsNullOrEmpty(accessToken))
-        {
-            InitiliazeApp(accessToken);
-            return;
-        }
+        NavManager.NavigateTo("/top-tracks");
     }
 
     private Dictionary<string, string> GetFragmentParams()
@@ -44,12 +33,6 @@
        .Split("&", StringSplitOptions.RemoveEmptyEntries)?
        .Select(param => param.Split("=", StringSplitOptions.RemoveEmptyEntries))?
        .ToDictionary(param => param[0], param => param[1]) ?? new Dictionary<string, string>();
-    }
-
-    private void InitiliazeApp(string accessToken)
-    {
-        AppState.SpotifyClient = new SpotifyClient(accessToken); ;
-        NavManager.NavigateTo("/top-tracks");
     }
 
 }

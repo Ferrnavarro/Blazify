@@ -1,6 +1,6 @@
-﻿@using Blazify.Client.Dtos
+﻿@using Blazify.Shared.Models.Spotify
 
-<a class="track-history__item" href="">
+<a class="track-history__item" href="@Track.SpotifyUrl">
     <span class="order-number">@Track.Position</span>
     <span class="track__info">
         <ListItemCoverImage ImageUrl="@Track.ImageUrl" />
@@ -14,5 +14,5 @@
 
 @code {
     [Parameter]
-    public TrackDto Track { get; set; }
+    public Track Track { get; set; }
 }

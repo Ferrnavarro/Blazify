@@ -1,44 +1,83 @@
 ﻿@page "/top-artists"
+@using Blazify.Shared.Models.Spotify
+@using Blazify.Shared.Dtos.Input
+@using System.Web;
+@using System.Net.Http;
+
 @inject NavigationManager NavManager
-@inject State.AppState AppState
+@inject Blazored.LocalStorage.ILocalStorageService LocalStorage
+@inject HttpClient HttpClient
 
 <div class="top-history">
-    <ListPage Title="Top Artists" ImageUrl="@ImageUrl">
+    <ListPage Title="Top Artists" ImageUrl="/img/top-artists.jpg">
         <div>
             <TimeRangeSelector OnChange="OnChangeTimeRange"></TimeRangeSelector>
-            @foreach (var artist in AppState.TopArtists)
+            @if (TopArtists != null && TopArtists.Any())
             {
-                <TopHistoryArtist Artist="@artist" />
+                @foreach (var artist in TopArtists)
+                {
+                    <TopHistoryArtist Artist="@artist" />
+                }
             }
-
         </div>
     </ListPage>
 </div>
 
 @code {
 
-    public string ImageUrl { get { return $"{NavManager.ToAbsoluteUri(NavManager.BaseUri)}/img/top-artists.jpg"; } }
-
-
-
+    public List<Artist> TopArtists { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
-        if (AppState.SpotifyClient == null)
+        await SetTopArtists(SpotifyAPI.Web.PersonalizationTopRequest.TimeRange.LongTerm);
+    }
+
+    public async Task OnChangeTimeRange(SpotifyAPI.Web.PersonalizationTopRequest.TimeRange timeRange)
+    {
+        TopArtists = null;
+        await SetTopArtists(timeRange);
+    }
+
+    private async Task SetTopArtists(SpotifyAPI.Web.PersonalizationTopRequest.TimeRange timeRange)
+    {
+        var accessToken = await LocalStorage.GetItemAsync<string>("spotify_access_token");
+
+        var requestInfo = new TopRequestDto
         {
+            Token = accessToken,
+            TimeRange = timeRange
+        };
+
+        string url = GetEndpointUrl(requestInfo);
+
+        var response = await HttpClient.GetAsync(url);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            await LocalStorage.RemoveItemAsync("spotify_access_token");
             NavManager.NavigateTo("/");
             return;
         }
 
-        await AppState.InitiliazeTopArtistss();
-
-        AppState.SetTopArtists(SpotifyAPI.Web.PersonalizationTopRequest.TimeRange.LongTerm);
+        TopArtists = await response.Content.ReadFromJsonAsync<List<Artist>>();
     }
 
-    public void OnChangeTimeRange(SpotifyAPI.Web.PersonalizationTopRequest.TimeRange timeRange)
+    private string GetEndpointUrl(TopRequestDto requestInfo)
     {
-        AppState.SetTopArtists(timeRange);
+        var builder = new UriBuilder($"{NavManager.ToAbsoluteUri(NavManager.BaseUri)}usertop/artists");
+
+        var query = HttpUtility.ParseQueryString(builder.Query);
+        query["token"] = requestInfo.Token;
+        query["timerange"] = ((int)requestInfo.TimeRange).ToString();
+        builder.Query = query.ToString();
+        string url = builder.ToString();
+
+        Console.WriteLine(nameof(requestInfo.Token));
+
+        return url;
     }
+
+
 }
 
 

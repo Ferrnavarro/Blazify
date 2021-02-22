@@ -19,32 +19,36 @@ namespace Blazify.Server.Controllers
             _userTopService = userTopService;
         }
 
-        [Route("tracks")]
+        [Route("tracks")]     
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Track>>> GetTopUserTracks([FromQuery] TopRequestDto requestInfo)
         {
-            var tracks = await _userTopService.GetuserTopTracks(requestInfo.Token, requestInfo.TimeRange);
-
-            if (tracks == null)
+            try
             {
-                return NotFound();
+                var tracks = await _userTopService.GetuserTopTracks(requestInfo.Token, requestInfo.TimeRange);
+                return Ok(tracks);
             }
-
-            return Ok(tracks);                   
-        }
-
-
-        [Route("prueba")]
-        [HttpGet]
-        public TopRequestDto GetInfo()
-        {
-           return  new TopRequestDto
+            catch (APIUnauthorizedException)
             {
-                Token = "12233",
-                TimeRange = PersonalizationTopRequest.TimeRange.LongTerm
-            };
+                return Unauthorized();
+            }
         }
 
+
+        [Route("artists")]
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<Track>>> GetTopUserArtists([FromQuery] TopRequestDto requestInfo)
+        {
+            try
+            {
+                var artists = await _userTopService.GetuserTopArtists(requestInfo.Token, requestInfo.TimeRange);
+                return Ok(artists);
+            }
+            catch (APIUnauthorizedException)
+            {
+                return Unauthorized();
+            }
+        }
 
     }
 }

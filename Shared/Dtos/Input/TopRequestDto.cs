@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using SpotifyAPI.Web;
+﻿using SpotifyAPI.Web;
+
 
 namespace Blazify.Shared.Dtos.Input
 {

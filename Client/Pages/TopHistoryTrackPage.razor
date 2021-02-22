@@ -1,22 +1,21 @@
 ﻿@page "/top-tracks"
 @using Blazify.Shared.Dtos.Input
 @using System.Net.Http;
-@using Newtonsoft.Json;
-@using System.Text;
+@using System.Web;
+@using Blazify.Shared.Models.Spotify
 
 @inject NavigationManager NavManager
-@inject State.AppState AppState
 @inject Blazored.LocalStorage.ILocalStorageService LocalStorage
 @inject HttpClient HttpClient
 
 <div class="top-history">
-    <ListPage Title="Top Tracks" ImageUrl="@ImageUrl">
+    <ListPage Title="Top Tracks" ImageUrl="/img/top-tracks.jpg">
         <div>
             <TimeRangeSelector OnChange="OnChangeTimeRange"></TimeRangeSelector>
 
-            @if (AppState.TopTracks.Any())
+            @if (TopTracks != null && TopTracks.Any())
             {
-                @foreach (var track in AppState.TopTracks)
+                @foreach (var track in TopTracks)
                 {
                     <TopHistoryTrack Track="@track" />
                 }
@@ -28,48 +27,76 @@
 
 @code {
 
-    public string ImageUrl { get { return $"{NavManager.ToAbsoluteUri(NavManager.BaseUri)}/img/top-tracks.jpg"; } }
+    public List<Track> TopTracks { get; set; } = new List<Track>();
 
     protected override async Task OnInitializedAsync()
     {
 
+
         var accessToken = await LocalStorage.GetItemAsync<string>("spotify_access_token");
+
+        if(String.IsNullOrEmpty(accessToken))
+        {
+            NavManager.NavigateTo("/login");
+            return;
+        }
+
+
+        await SetTopTracks(SpotifyAPI.Web.PersonalizationTopRequest.TimeRange.LongTerm, accessToken);
+    }
+
+
+    public async Task OnChangeTimeRange(SpotifyAPI.Web.PersonalizationTopRequest.TimeRange timeRange)
+    {
+        var accessToken = await LocalStorage.GetItemAsync<string>("spotify_access_token");
+
+        if (String.IsNullOrEmpty(accessToken))
+        {
+            NavManager.NavigateTo("/login");
+            return;
+        }
+
+        TopTracks = null;
+        await SetTopTracks(timeRange, accessToken);
+    }
+
+
+    private async Task SetTopTracks(SpotifyAPI.Web.PersonalizationTopRequest.TimeRange timeRange, string accessToken)
+    {
+
 
         var requestInfo = new TopRequestDto
         {
             Token = accessToken,
-            TimeRange = SpotifyAPI.Web.PersonalizationTopRequest.TimeRange.LongTerm
+            TimeRange = timeRange
         };
 
+        string url = GetEndpointUrl(requestInfo);
 
-        var json = JsonConvert.SerializeObject(requestInfo);
-        var data = new StringContent(json, Encoding.UTF8, "application/json");
+        var response = await HttpClient.GetAsync(url);
 
-       // HttpClient.GetAsync("", )
-
-
-        //var response = await HttpClient.GetFromJsonAsync("", requestInfo);
-
-
-
-
-
-        if (AppState.SpotifyClient == null)
+        if (!response.IsSuccessStatusCode)
         {
-            NavManager.NavigateTo("/");
+            await LocalStorage.RemoveItemAsync("spotify_access_token");
+            NavManager.NavigateTo("/login");
             return;
         }
 
-        await AppState.InitiliazeTopTracks();
-
-        AppState.SetTopTracks(SpotifyAPI.Web.PersonalizationTopRequest.TimeRange.LongTerm);
+        TopTracks = await response.Content.ReadFromJsonAsync<List<Track>>();
     }
 
-
-    public void OnChangeTimeRange(SpotifyAPI.Web.PersonalizationTopRequest.TimeRange timeRange)
+    private string GetEndpointUrl(TopRequestDto requestInfo)
     {
-        AppState.SetTopTracks(timeRange);
+        var builder = new UriBuilder($"{NavManager.ToAbsoluteUri(NavManager.BaseUri)}usertop/tracks");
+
+        var query = HttpUtility.ParseQueryString(builder.Query);
+        query["token"] = requestInfo.Token;
+        query["timerange"] = ((int)requestInfo.TimeRange).ToString();
+        builder.Query = query.ToString();
+        string url = builder.ToString();
+
+        Console.WriteLine(nameof(requestInfo.Token));
+
+        return url;
     }
-
-
 }

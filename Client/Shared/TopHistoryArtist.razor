@@ -1,6 +1,6 @@
-﻿@using Blazify.Client.Dtos
+﻿@using Blazify.Shared.Models.Spotify
 
-<a class="artist-history__item" href="">
+<a class="artist-history__item" href="@Artist.SpotifyUrl">
     <span class="order-number">@Artist.Position</span>
     <span class="artist__info">
         <ListItemCoverImage ImageUrl="@Artist.ImageUrl" />
@@ -15,5 +15,5 @@
 
 @code {
     [Parameter]
-    public ArtistDto Artist { get; set; }
+    public Artist Artist { get; set; }
 }
