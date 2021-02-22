@@ -1,6 +1,13 @@
 ﻿@page "/top-tracks"
+@using Blazify.Shared.Dtos.Input
+@using System.Net.Http;
+@using Newtonsoft.Json;
+@using System.Text;
+
 @inject NavigationManager NavManager
 @inject State.AppState AppState
+@inject Blazored.LocalStorage.ILocalStorageService LocalStorage
+@inject HttpClient HttpClient
 
 <div class="top-history">
     <ListPage Title="Top Tracks" ImageUrl="@ImageUrl">
@@ -25,6 +32,28 @@
 
     protected override async Task OnInitializedAsync()
     {
+
+        var accessToken = await LocalStorage.GetItemAsync<string>("spotify_access_token");
+
+        var requestInfo = new TopRequestDto
+        {
+            Token = accessToken,
+            TimeRange = SpotifyAPI.Web.PersonalizationTopRequest.TimeRange.LongTerm
+        };
+
+
+        var json = JsonConvert.SerializeObject(requestInfo);
+        var data = new StringContent(json, Encoding.UTF8, "application/json");
+
+       // HttpClient.GetAsync("", )
+
+
+        //var response = await HttpClient.GetFromJsonAsync("", requestInfo);
+
+
+
+
+
         if (AppState.SpotifyClient == null)
         {
             NavManager.NavigateTo("/");

@@ -6,6 +6,12 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System.Linq;
+using Microsoft.AspNetCore.Http;
+using Blazify.Server.Services.Interfaces;
+using Blazify.Server.Services;
+using Blazify.Server.Settings;
+using Microsoft.Extensions.Options;
+using Blazify.Server.Settings.Interfaces;
 
 namespace Blazify.Server
 {
@@ -25,6 +31,16 @@ namespace Blazify.Server
 
             services.AddControllersWithViews();
             services.AddRazorPages();
+
+            services.Configure<SpotifySettings>(Configuration.GetSection(nameof(SpotifySettings)));
+
+            services.AddSingleton<ISpotifySettings>(sp =>
+                sp.GetRequiredService<IOptions<SpotifySettings>>().Value);
+
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+            services.AddSingleton<ISpotifyAccountService, SpotifyAccountService>();
+            services.AddSingleton<IUserTopService, UserTopService>();
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

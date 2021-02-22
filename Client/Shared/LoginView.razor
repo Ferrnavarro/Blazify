@@ -1,11 +1,13 @@
-﻿<span>
+﻿@inject HttpClient HttpClient
+
+<span>
     <div class="login">
         <span class="login__app-icon">
             <img src="img/replayify-icon.png" alt="Replayify" />
         </span>
         <div class="login__content">
             <h1 class="login__title">Replay your Spotify Hits</h1>
-            <a class="btn btn-primary btn-login" href="@LoginRequestUrl">
+            <a class="btn btn-primary btn-login" href="@_loginRequestUrl">
                 Sign in with Spotify
             </a>
         </div>
@@ -15,6 +17,13 @@
 
 
 @code {
-    [Parameter]
-    public string LoginRequestUrl { get; set; }
+
+    string _loginRequestUrl;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var loginUri = await HttpClient.GetFromJsonAsync<Uri>("spotifyaccount/loginuri");
+        _loginRequestUrl = loginUri.ToString();
+    }
+
 }

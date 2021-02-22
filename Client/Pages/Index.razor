@@ -1,25 +1,20 @@
 ﻿@layout EmptyLayout
 @page "/"
 @inject NavigationManager NavManager
+@inject HttpClient HttpClient
 @inject State.AppState AppState
 @inject Blazored.LocalStorage.ILocalStorageService LocalStorage
 
 @using SpotifyAPI.Web
 
-<LoginView LoginRequestUrl="@_loginRequestUrl"></LoginView>
+<LoginView></LoginView>
 
 
-@code {
-    private string _loginRequestUrl;
-    private bool _isAuthed = false;
-
-    protected override void OnInitialized()
-    {
-        _loginRequestUrl = AppState.GetSpotifyLoginPageUrl(NavManager.ToAbsoluteUri(NavManager.BaseUri));
-    }
+@code {   
+    private bool _isAuthed = false;   
 
     protected override async Task OnInitializedAsync()
-    {
+    {      
         Dictionary<string, string> fragmentParams = GetFragmentParams();
 
         bool fromSpotifyPage = fragmentParams.ContainsKey("access_token");
@@ -37,7 +32,7 @@
         {
             InitiliazeApp(accessToken);
             return;
-        }       
+        }
     }
 
     private Dictionary<string, string> GetFragmentParams()
